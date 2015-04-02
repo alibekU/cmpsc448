@@ -13,6 +13,7 @@ class propertyData:
         self.sum = 0
         self.dict = {}
 
+# split into 2 for learning and replacing!
 def assignWeights(obj,data):
     for i,value in enumerate(data[obj.name]):
         count = result[i]
@@ -45,6 +46,7 @@ workingDay = propertyData('workingday')
 holiday = propertyData('holiday')
 humidity = propertyData('humidity')
 temp = propertyData('temp')
+year = propertyData('year')
 
 with open(fileName, "r") as f:
         header = f.next().strip("\n").split(",")
@@ -56,6 +58,7 @@ data  = pd.DataFrame(data=np.asarray(dataIn), columns=header)
 data['hour'] = data['datetime'].map(lambda x: (datetime.strptime(x, "%Y-%m-%d %H:%M:%S")).hour)
 data['weekday'] = data['datetime'].map(lambda x: (datetime.strptime(x, "%Y-%m-%d %H:%M:%S")).weekday())
 data['month'] = data['datetime'].map(lambda x: (datetime.strptime(x, "%Y-%m-%d %H:%M:%S")).month)
+data['year'] = data['datetime'].map(lambda x: (datetime.strptime(x, "%Y-%m-%d %H:%M:%S")).year)
 
 del data['datetime']
 
@@ -81,11 +84,14 @@ tempData.append(assignWeights(season,data))
 tempData.append(assignWeights(weather,data))
 tempData.append(assignWeights(workingDay,data))
 tempData.append(assignWeights(holiday,data))
-tempData.append(assignWeights(humidity,data))
-tempData.append(assignWeights(temp,data))
+#tempData.append(assignWeights(humidity,data))
+#tempData.append(assignWeights(temp,data))
+#tempData.append(assignWeights(year,data))
+tempData.append(data['temp'])
+tempData.append(data['year'])
 newData = []
 
-for i in range(len(result)):
+for i in range(len(tempData[0])):
     slice = []
     for j in range(len(tempData)):
         slice.append(tempData[j][i])
@@ -106,6 +112,7 @@ del data['weekday']
 #del data['month']
 #del data['hour']
 #del data['temp']
+#del data['year']
 
 regr = linear_model.LinearRegression()
 regr.fit(newData,result)
@@ -114,12 +121,9 @@ calc = regr.predict(newData)
 for i,x in enumerate(calc):
     if x < 0:
         calc[i] = 0
-
-"""
 for i,res in enumerate(calc):
     if data['hour'][i] in range(0,7):
         calc[i] = 0
-"""
 
 r = 10000
 l = 0
