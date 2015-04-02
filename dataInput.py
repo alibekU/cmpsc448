@@ -108,7 +108,7 @@ del data['weekday']
 #del data['temp']
 
 regr = linear_model.LinearRegression()
-regr.fit(newData, result)
+regr.fit(newData,result)
 calc = regr.predict(newData)
 
 for i,x in enumerate(calc):
@@ -120,6 +120,7 @@ for i,res in enumerate(calc):
     if data['hour'][i] in range(0,7):
         calc[i] = 0
 """
+
 r = 10000
 l = 0
 u = l + r
@@ -127,7 +128,7 @@ u = l + r
 x = range(r)
 
 plt.scatter(x, result[l:u], color = 'red')
-plt.plot(x, calc[0:r], color = 'blue')
+plt.plot(x, calc[l:u], color = 'blue')
 plt.show()
 
 print mean_squared_error(result[l:u],calc[l:u])
