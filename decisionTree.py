@@ -9,6 +9,8 @@ from datetime import datetime, date, time
 from sklearn.feature_selection import VarianceThreshold
 from sklearn import linear_model 
 from dataInput import *
+from sklearn.ensemble import BaggingRegressor
+from sklearn.tree import DecisionTreeRegressor
 
 
 trainFile  = "train.csv"
@@ -25,27 +27,39 @@ del trainData['datetime']
 del trainData['count']
 del trainData['registered']
 del trainData['casual']
-del testData['datetime']
-del testData['atemp']
+'''
+del trainData['season']
+del trainData['holiday']
+del trainData['workingday']
 del trainData['atemp']
-del testData['windspeed']
-del trainData['windspeed']
 del trainData['humidity']
+del trainData['windspeed']
+del trainData['weekday']
+del trainData['month']
+del trainData['year']
+'''
+
+del testData['datetime']
+'''
+del testData['season']
+del testData['holiday']
+del testData['workingday']
+del testData['atemp']
 del testData['humidity']
-
-regr = tree.DecisionTreeClassifier()
+del testData['windspeed']
+del testData['weekday']
+del testData['month']
+del testData['year']
+'''
+regr = BaggingRegressor(DecisionTreeRegressor())
 regr.fit(trainData,result)
-calc = regr.predict(testData)
-calc1 = regr.predict(trainData) 
 
+calc = regr.predict(testData)
 
 for i,x in enumerate(calc):
     if x < 0:
         calc[i] = 0
 
-for i,x in enumerate(calc1):
-    if x < 0:
-        calc[i] = 0
 
 with open('output.csv', 'w') as csvfile:
     fieldNames = ['datetime', 'count']
@@ -54,15 +68,16 @@ with open('output.csv', 'w') as csvfile:
     
     for i in range(len(dateTime)):
         writer.writerow({'datetime':dateTime[i], 'count':calc[i]})
-
-r = len(result)
+"""
+r = 10000
 l = 0 
 u = l + r
 
 x = range(r)
 
 plt.scatter(x, result[l:u], color = 'red')
-plt.plot(x, calc1[l:u], color = 'blue')
+plt.plot(x, calc[l:u], color = 'blue')
 plt.show()
 
-print mean_squared_error(result[l:u],calc1[l:u])
+print mean_squared_error(result[l:u],calc[l:u])
+"""
