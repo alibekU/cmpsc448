@@ -45,7 +45,7 @@ for i,x in enumerate(calc):
 
 for i,x in enumerate(calc1):
     if x < 0:
-        calc[i] = 0
+        calc1[i] = 0
 
 with open('output.csv', 'w') as csvfile:
     fieldNames = ['datetime', 'count']
