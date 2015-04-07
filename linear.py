@@ -34,8 +34,25 @@ def assignWeights(obj,data):
 
     return newData
 
-fileName  = "train.csv"
-data = getData(fileName)
+def replaceTestValues(testData, obj):
+    for i,x in enumerate(testData[obj.name]):
+        testData[obj.name][i] = obj.dict[x]
+
+trainFile  = "train.csv"
+testFile = "test.csv"
+
+trainData = getData(trainFile)
+testData = getData(testFile)
+
+dateTime = testData['datetime']
+
+result = trainData['count']
+
+del trainData['datetime']
+del trainData['count']
+del trainData['registered']
+del trainData['casual']
+del testData['datetime']
 
 hour = propertyData('hour')
 month = propertyData('month')
@@ -47,65 +64,60 @@ humidity = propertyData('humidity')
 temp = propertyData('temp')
 year = propertyData('year')
 
-result = data['count']
 
-tempData = []
+trainData['hour'] = assignWeights(hour,trainData)
+trainData['month'] = assignWeights(month,trainData)
+trainData['holiday'] = assignWeights(holiday,trainData)
+replaceTestValues(testData,hour)
+replaceTestValues(testData,month)
+replaceTestValues(testData,holiday)
 
-tempData.append(assignWeights(hour,data))
-tempData.append(assignWeights(month,data))
-#tempData.append(assignWeights(season,data))
-#tempData.append(assignWeights(weather,data))
-#tempData.append(assignWeights(workingDay,data))
-tempData.append(assignWeights(holiday,data))
-#tempData.append(assignWeights(temp,data))
-#tempData.append(assignWeights(year,data))
-tempData.append(data['temp'])
-#tempData.append(data['holiday'])
-tempData.append(data['year'])
-tempData.append(data['workingday'])
-tempData.append(data['humidity'])
-tempData.append(data['windspeed'])
-tempData.append(data['weekday'])
-#tempData.append(data['hour'])
-#tempData.append(data['month'])
-tempData.append(data['season'])
-tempData.append(data['weather'])
+"""
+tempData.append(trainData['temp'])
+tempData.append(trainData['year'])
+tempData.append(trainData['workingday'])
+tempData.append(trainData['humidity'])
+tempData.append(trainData['windspeed'])
+tempData.append(trainData['weekday'])
+tempData.append(trainData['season'])
+tempData.append(trainData['weather'])
 newData = []
+"""
 
+"""
 for i in range(len(tempData[0])):
     slice = []
     for j in range(len(tempData)):
         slice.append(tempData[j][i])
     newData.append(slice)
-
-del data['count']
-del data['registered']
-del data['casual']
-
-del data['atemp']
-del data['windspeed']
-#del data['season']
-#del data['weather']
-#del data['humidity']
-del data['weekday']
-#del data['holiday']
-#del data['workingday']
-#del data['month']
-#del data['hour']
-#del data['temp']
-#del data['year']
-
+"""
 
 poly = PolynomialFeatures(degree = 4)
-polyData = poly.fit_transform(newData)
+polyDataTrain = poly.fit_transform(trainData)
+polyDataTest = poly.fit_transform(testData)
 
 regr = linear_model.LinearRegression()
-regr.fit(polyData,result)
-calc = regr.predict(polyData)
+regr.fit(polyDataTrain,result)
+
+calc1 = regr.predict(polyDataTrain)
+calc = regr.predict(polyDataTest)
+
+for i,x in enumerate(calc1):
+    if x < 0:
+        calc1[i] = 0
 
 for i,x in enumerate(calc):
     if x < 0:
         calc[i] = 0
+
+with open('output_poly.csv', 'w') as csvfile:
+    fieldNames = ['datetime', 'count']
+    writer = csv.DictWriter(csvfile,fieldnames=fieldNames)
+    writer.writeheader()
+    
+    for i in range(len(dateTime)):
+        writer.writerow({'datetime':dateTime[i], 'count':calc[i]})
+
 """
 for i,res in enumerate(calc):
     if data['hour'][i] in range(0,7):
@@ -119,7 +131,7 @@ u = l + r
 x = range(r)
 
 plt.scatter(x, result[l:u], color = 'red')
-plt.plot(x, calc[l:u], color = 'blue')
+plt.plot(x, calc1[l:u], color = 'blue')
 plt.show()
 
-print mean_squared_error(result[l:u],calc[l:u])
+print mean_squared_error(result[l:u],calc1[l:u])
