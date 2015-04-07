@@ -1,4 +1,5 @@
 import csv
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt 
 import pandas as pd
@@ -52,15 +53,23 @@ tempData = []
 
 tempData.append(assignWeights(hour,data))
 tempData.append(assignWeights(month,data))
-tempData.append(assignWeights(season,data))
-tempData.append(assignWeights(weather,data))
-tempData.append(assignWeights(workingDay,data))
+#tempData.append(assignWeights(season,data))
+#tempData.append(assignWeights(weather,data))
+#tempData.append(assignWeights(workingDay,data))
 tempData.append(assignWeights(holiday,data))
-#tempData.append(assignWeights(humidity,data))
 #tempData.append(assignWeights(temp,data))
 #tempData.append(assignWeights(year,data))
 tempData.append(data['temp'])
+#tempData.append(data['holiday'])
 tempData.append(data['year'])
+tempData.append(data['workingday'])
+tempData.append(data['humidity'])
+tempData.append(data['windspeed'])
+tempData.append(data['weekday'])
+#tempData.append(data['hour'])
+#tempData.append(data['month'])
+tempData.append(data['season'])
+tempData.append(data['weather'])
 newData = []
 
 for i in range(len(tempData[0])):
@@ -86,19 +95,25 @@ del data['weekday']
 #del data['temp']
 #del data['year']
 
+
+poly = PolynomialFeatures(degree = 4)
+polyData = poly.fit_transform(newData)
+
 regr = linear_model.LinearRegression()
-regr.fit(newData,result)
-calc = regr.predict(newData)
+regr.fit(polyData,result)
+calc = regr.predict(polyData)
 
 for i,x in enumerate(calc):
     if x < 0:
         calc[i] = 0
+"""
 for i,res in enumerate(calc):
     if data['hour'][i] in range(0,7):
         calc[i] = 0
+"""
 
 r = 10000
-l = 0
+l = 0 
 u = l + r
 
 x = range(r)
