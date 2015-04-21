@@ -1,6 +1,4 @@
 import csv
-from sklearn.ensemble import GradientBoostingRegressor
-import math
 from sklearn import tree 
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error
@@ -13,7 +11,7 @@ from sklearn import linear_model
 from dataInput import *
 from sklearn.ensemble import BaggingRegressor
 from sklearn.tree import DecisionTreeRegressor
-
+from sklearn.ensemble import GradientBoostingRegressor
 
 trainFile  = "train.csv"
 testFile = "test.csv"
@@ -56,11 +54,8 @@ del testData['atemp']
 #del testData['month']
 #del testData['year']
 
-reg = reg.map(lambda x: 0 if x == 0 else math.log(x))
-cas = cas.map(lambda x: 0 if x == 0 else math.log(x))
-
-regrReg = BaggingRegressor(GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=3, random_state=0, loss = 'ls'))
-regrCas = BaggingRegressor(GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=3, random_state=0, loss = 'ls'))
+regrReg = GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss = 'ls')
+regrCas = GradientBoostingRegressor(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss = 'ls')
 regrReg.fit(trainData,reg)
 regrCas.fit(trainData,cas)
 
@@ -70,22 +65,18 @@ calcReg1 = regrReg.predict(trainData)
 calcCas1 = regrCas.predict(trainData)
 
 for i,x in enumerate(calcReg):
-    calcReg[i] = math.exp(x)
     if x < 0:
         calcReg[i] = 0
 
 for i,x in enumerate(calcReg1):
-    calcReg1[i] = math.exp(x)
     if x < 0:
         calcReg1[i] = 0
 
 for i,x in enumerate(calcCas):
-    calcCas[i] = math.exp(x)
     if x < 0:
         calcCas[i] = 0
 
 for i,x in enumerate(calcCas1):
-    calcCas1[i] = math.exp(x)
     if x < 0:
         calcCas1[i] = 0
 
